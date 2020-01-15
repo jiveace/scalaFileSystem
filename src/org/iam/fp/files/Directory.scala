@@ -1,5 +1,7 @@
 package org.iam.fp.files
 
+import org.iam.fp.filesystem.FileSystemException
+
 import scala.annotation.tailrec
 
 class Directory(override val parentPath: String, override val name: String, val contents: List[DirEntry])
@@ -33,6 +35,10 @@ class Directory(override val parentPath: String, override val name: String, val 
     else findEntry(path.head).asDirectory.findDescendant(path.tail)
 
   override def asDirectory: Directory = this
+
+  override def asFile: File =
+    throw new FileSystemException("A  directory cannot be converted to a file")
+
 }
 
 object Directory {
