@@ -2,6 +2,9 @@ package org.iam.fp.files
 
 class Directory(override val parentPath: String, override val name: String, val contents: List[DirEntry])
   extends DirEntry(parentPath, name) {
+
+  def hesEntry(name: String): Boolean = ???
+
 }
 
 object Directory {
