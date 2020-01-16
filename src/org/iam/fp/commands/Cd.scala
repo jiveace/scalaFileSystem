@@ -1,6 +1,6 @@
 package org.iam.fp.commands
 
-import org.iam.fp.files.Directory
+import org.iam.fp.files.{DirEntry, Directory}
 import org.iam.fp.filesystem.State
 
 import scala.annotation.tailrec
@@ -26,11 +26,11 @@ class Cd(dir: String) extends Command {
   }
 
 
-  def doFindEntry(root: Directory, path: String): Directory = {
+  def doFindEntry(root: Directory, path: String): DirEntry = {
     @tailrec
-    def findEntryHelper(currentDirectory: Directory, path: List[String]): Directory =
+    def findEntryHelper(currentDirectory: Directory, path: List[String]): DirEntry =
       if (path.isEmpty || path.head.isEmpty) currentDirectory
-      else if (path.tail.isEmpty) currentDirectory.findEntry(path.head).asDirectory
+      else if (path.tail.isEmpty) currentDirectory.findEntry(path.head)
       else {
         val nextDir = currentDirectory.findEntry(path.head)
         if (nextDir == null || !nextDir.isDirectory) null
@@ -39,10 +39,23 @@ class Cd(dir: String) extends Command {
 
 
     // 1. tokens
+    @tailrec
+    def collapseRelativeTokens(path: List[String], result: List[String]): List[String] = {
+      if (path.isEmpty) result
+      else if (".".equals(path.head)) collapseRelativeTokens(path.tail, result)
+      else if ("..".equals(path.head)) {
+        if (result.isEmpty) null
+        else collapseRelativeTokens(path.tail, result.tail)
+      } else collapseRelativeTokens(path.tail, result :+ path.head)
+    }
+
     val tokens = path.substring(1).split(Directory.SEPARATOR).toList
 
-    // 2. Navigate to the correct entry
-    findEntryHelper(root, tokens)
-  }
+    // 1.5 eliminate/collapse relative tokens
 
+    val newTokens = collapseRelativeTokens(tokens, List())
+    // 2. Navigate to the correct entry
+    if (newTokens == null) null
+    else findEntryHelper(root, newTokens)
+  }
 }
