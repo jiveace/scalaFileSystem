@@ -17,7 +17,7 @@ class Echo(args: Array[String]) extends Command {
 
       if (">>".equals(operator))
         doEcho(state, contents, filename, append = true)
-      else if (">>".equals(operator))
+      else if (">".equals(operator))
         doEcho(state, contents, filename, append = false)
       else state.setMessage(createContent(args, args.length))
     }

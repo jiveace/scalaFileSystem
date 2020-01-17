@@ -7,6 +7,7 @@ trait Command {
 }
 
 object Command {
+  val CAT = "cat"
   val CD = "cd"
   val ECHO = "echo"
   val LS = "ls"
@@ -42,6 +43,9 @@ object Command {
     } else if (ECHO.equals(tokens(0))) {
       if (tokens.length < 2) incompleteCommand(ECHO)
       else new Echo(tokens.tail)
+    } else if (CAT.equals(tokens(0))) {
+      if (tokens.length < 2) incompleteCommand(CAT)
+      else new Cat(tokens(1))
     }
     else new UnknownCommand
   }
